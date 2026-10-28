@@ -12,6 +12,10 @@
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -42,15 +46,23 @@
       text-decoration: none;
     }
 
-    nav div {
+    .nav-links {
       display: flex;
       gap: 22px;
+      flex-wrap: wrap;
+      align-items: center;
     }
 
-    nav div a {
-      color: #69734d;
+    .nav-links a {
+      color: #34382b;
       text-decoration: none;
       font-weight: bold;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: #69734d;
     }
 
     main {
@@ -136,6 +148,10 @@
       font-weight: bold;
     }
 
+    .back-link:hover {
+      background: #34382b;
+    }
+
     footer {
       background: #34382b;
       color: #f3e8d5;
@@ -143,7 +159,7 @@
       padding: 25px 15px;
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 520px) {
       h1 {
         font-size: 30px;
       }
@@ -151,19 +167,26 @@
       nav {
         align-items: flex-start;
       }
+
+      .nav-links {
+        gap: 14px;
+      }
     }
   </style>
 </head>
 
 <body>
   <header>
-    <nav>
-      <a class="brand" href="/">
+    <nav aria-label="Main navigation">
+      <a class="brand" href="./index.html">
         Book<span style="color: #69734d;">heart</span>
       </a>
 
-      <div>
-        <a href="/">Home</a>
+      <div class="nav-links">
+        <a href="./index.html">Home</a>
+        <a href="./index.html#categories">Categories</a>
+        <a href="./favorites.html" class="active" aria-current="page">Favorites</a>
+        <a href="./about.html">About</a>
       </div>
     </nav>
   </header>
@@ -185,7 +208,7 @@
       Add to Favorites on a book you like.
     </p>
 
-    <a class="back-link" href="/">Explore Books</a>
+    <a class="back-link" href="./index.html#discover">Explore Books</a>
   </main>
 
   <footer>
@@ -216,7 +239,7 @@
         category.textContent = book.category || 'Book';
 
         const title = document.createElement('h2');
-        title.textContent = book.title;
+        title.textContent = book.title || 'Untitled Book';
 
         const author = document.createElement('p');
         author.className = 'author';

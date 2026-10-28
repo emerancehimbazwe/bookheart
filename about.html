@@ -1,4 +1,4 @@
-
+q
 <!doctype html>
 <html lang="en">
 <head>
@@ -43,16 +43,23 @@
       text-decoration: none;
     }
 
-    nav div {
+    .nav-links {
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
     }
 
-    nav div a {
+    .nav-links a {
       color: #69734d;
       text-decoration: none;
       font-weight: bold;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: #34382b;
+      text-decoration: underline;
+      text-underline-offset: 5px;
     }
 
     nav a:focus-visible,
@@ -162,6 +169,10 @@
         align-items: flex-start;
       }
 
+      .nav-links {
+        gap: 12px;
+      }
+
       .hero {
         padding: 30px 18px;
       }
@@ -176,14 +187,15 @@
 <body>
   <header>
     <nav aria-label="Main navigation">
-      <a class="brand" href="/">
+      <a class="brand" href="./index.html">
         Book<span style="color: #69734d;">heart</span>
       </a>
 
-      <div>
-        <a href="/">Home</a>
-        <a href="/favorites.html">Favorites</a>
-        <a href="/about.html" aria-current="page">About</a>
+      <div class="nav-links">
+        <a href="./index.html">Home</a>
+        <a href="./index.html#categories">Categories</a>
+        <a href="./favorites.html">Favorites</a>
+        <a href="./about.html" class="active" aria-current="page">About</a>
       </div>
     </nav>
   </header>
@@ -197,7 +209,7 @@
         explore different categories, and keep track of the books
         they love.
       </p>
-      <a class="button" href="/">Explore Our Books</a>
+      <a class="button" href="./index.html">Explore Our Books</a>
     </section>
 
     <section class="content-section" aria-labelledby="mission-heading">

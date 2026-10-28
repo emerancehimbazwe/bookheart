@@ -1,4 +1,3 @@
-
 import './style.css'
 import { getFavorites, addFavorite, removeFavorite } from './favorites.js'
 import { fetchBooks } from './fetchBooks.js'
@@ -44,12 +43,84 @@ const sampleCoverISBNs = {
   'The Call of the Wild': '9780141321059',
 }
 
+// Assign known books to appropriate categories.
+// Use the API subject information when available, and a fallback otherwise.
 function getCategory(book, index) {
-  if (book.category && categories.includes(book.category)) {
-    return book.category
+  const title = (book.title || '').toLowerCase()
+  const subjects = Array.isArray(book.subjects)
+    ? book.subjects.join(' ').toLowerCase()
+    : ''
+
+  const text = `${title} ${subjects}`
+
+  if (
+    text.includes('sherlock holmes') ||
+    text.includes('detective') ||
+    text.includes('mystery') ||
+    text.includes('crime fiction')
+  ) {
+    return 'Mystery'
   }
 
-  return categories[1 + (index % (categories.length - 2))]
+  if (
+    text.includes('harry potter') ||
+    text.includes('the hobbit') ||
+    text.includes('fantasy') ||
+    text.includes('magic') ||
+    text.includes('fairy tale')
+  ) {
+    return 'Fantasy'
+  }
+
+  if (
+    text.includes('little women') ||
+    text.includes('anne of green gables') ||
+    text.includes('coming of age') ||
+    text.includes('young adult')
+  ) {
+    return 'Coming of Age'
+  }
+
+  if (
+    text.includes('treasure island') ||
+    text.includes('call of the wild') ||
+    text.includes('adventure')
+  ) {
+    return 'Adventure'
+  }
+
+  if (
+    text.includes('secret garden') ||
+    text.includes('alice in wonderland') ||
+    text.includes('children') ||
+    text.includes('juvenile fiction')
+  ) {
+    return "Children's Classics"
+  }
+
+  if (
+    text.includes('pride and prejudice') ||
+    text.includes('great gatsby') ||
+    text.includes('frankenstein') ||
+    text.includes('classic fiction') ||
+    text.includes('literary fiction')
+  ) {
+    return 'Classic Fiction'
+  }
+
+  // Make sure books without usable category information
+  // are still assigned to a category with visible results.
+  const fallbackCategories = [
+    'Classic Fiction',
+    'Coming of Age',
+    'Adventure',
+    'Mystery',
+    "Children's Classics",
+    'Fantasy',
+    'Books',
+  ]
+
+  return fallbackCategories[index % fallbackCategories.length]
 }
 
 function getCoverUrl(book) {
@@ -74,6 +145,8 @@ function renderBookCards() {
   const bookGrid = document.querySelector('#book-grid')
   const resultCount = document.querySelector('#result-count')
 
+  if (!bookGrid || !resultCount) return
+
   if (isLoading) {
     bookGrid.innerHTML = `
       <div class="col-span-full py-12 text-center" role="status">
@@ -89,17 +162,22 @@ function renderBookCards() {
     bookGrid.innerHTML = `
       <div class="col-span-full rounded-2xl bg-[#eee3d4] p-8 text-center">
         <p class="font-semibold">${errorMessage}</p>
-        <button id="retry-button" type="button"
-          class="mt-4 rounded-full bg-[#69734d] px-5 py-3 font-semibold text-white">
+        <button
+          id="retry-button"
+          type="button"
+          class="mt-4 rounded-full bg-[#69734d] px-5 py-3 font-semibold text-white"
+        >
           Try Again
         </button>
       </div>
     `
+
     resultCount.textContent = ''
 
     document.querySelector('#retry-button').addEventListener('click', () => {
       loadBooks(searchTitle || 'fiction')
     })
+
     return
   }
 
@@ -116,10 +194,31 @@ function renderBookCards() {
 
   if (filteredBooks.length === 0) {
     bookGrid.innerHTML = `
-      <p class="col-span-full py-12 text-center text-[#626456]">
-        No results found. Try another book title or category.
-      </p>
+      <div class="col-span-full rounded-2xl bg-[#eee3d4] p-8 text-center">
+        <h3 class="text-xl font-bold">No books found in this category</h3>
+        <p class="mt-2 text-[#626456]">
+          Try another category or search for a different title.
+        </p>
+        <button
+          id="show-all-books"
+          type="button"
+          class="mt-4 rounded-full bg-[#69734d] px-5 py-3 font-semibold text-white"
+        >
+          Show All Books
+        </button>
+      </div>
     `
+
+    document.querySelector('#show-all-books').addEventListener('click', () => {
+      selectedCategory = 'All Books'
+      searchTitle = ''
+
+      const input = document.querySelector('#book-search')
+      if (input) input.value = ''
+
+      renderCategories()
+      renderBookCards()
+    })
   } else {
     bookGrid.innerHTML = filteredBooks.map((book) => {
       const isFavorite = getFavorites().some(
@@ -127,10 +226,13 @@ function renderBookCards() {
       )
 
       const cover = getCoverUrl(book)
+      const color = categoryColors[
+        books.indexOf(book) % categoryColors.length
+      ]
 
       return `
         <article class="rounded-2xl border border-[#ddd0b8] bg-white p-6 transition hover:-translate-y-1 hover:shadow-lg">
-          <div class="mb-4 flex h-44 items-center justify-center overflow-hidden rounded-xl ${categoryColors[books.indexOf(book) % categoryColors.length]}">
+          <div class="mb-4 flex h-44 items-center justify-center overflow-hidden rounded-xl ${color}">
             ${
               cover
                 ? `<img
@@ -153,10 +255,15 @@ function renderBookCards() {
             </div>
           </div>
 
-          <p class="text-sm font-semibold uppercase text-[#69734d]">${book.category}</p>
+          <p class="text-sm font-semibold uppercase text-[#69734d]">
+            ${book.category}
+          </p>
+
           <h3 class="mt-2 text-xl font-bold">${book.title}</h3>
-          <p class="mt-2 text-sm text-[#626456]">By ${book.author}</p>
-          <p class="mt-2 text-sm text-[#626456]">First published: ${book.year}</p>
+          <p class="mt-2 text-sm text-[#626456]">By ${book.author || 'Unknown author'}</p>
+          <p class="mt-2 text-sm text-[#626456]">
+            First published: ${book.year || 'Unknown'}
+          </p>
 
           <button
             type="button"
@@ -192,6 +299,7 @@ function renderBookCards() {
           title: book.title,
           author: book.author,
           category: book.category,
+          year: book.year,
         })
       }
 
@@ -201,23 +309,26 @@ function renderBookCards() {
 }
 
 function renderCategories() {
-  document.querySelector('#category-buttons').innerHTML =
-    categories.map((category) => `
-      <button
-        type="button"
-        data-category="${category}"
-        aria-pressed="${selectedCategory === category}"
-        class="rounded-full border border-[#69734d] px-5 py-3 text-sm font-semibold transition ${
-          selectedCategory === category
-            ? 'bg-[#69734d] text-white'
-            : 'bg-[#fbf8f1] text-[#34382b] hover:bg-[#69734d] hover:text-white'
-        }"
-      >
-        ${category}
-      </button>
-    `).join('')
+  const categoryButtons = document.querySelector('#category-buttons')
 
-  document.querySelectorAll('#category-buttons button').forEach((button) => {
+  if (!categoryButtons) return
+
+  categoryButtons.innerHTML = categories.map((category) => `
+    <button
+      type="button"
+      data-category="${category}"
+      aria-pressed="${selectedCategory === category}"
+      class="rounded-full border border-[#69734d] px-5 py-3 text-sm font-semibold transition ${
+        selectedCategory === category
+          ? 'bg-[#69734d] text-white'
+          : 'bg-[#fbf8f1] text-[#34382b] hover:bg-[#69734d] hover:text-white'
+      }"
+    >
+      ${category}
+    </button>
+  `).join('')
+
+  categoryButtons.querySelectorAll('button').forEach((button) => {
     button.addEventListener('click', () => {
       selectedCategory = button.dataset.category
       renderCategories()
@@ -237,12 +348,14 @@ async function loadBooks(title = 'fiction') {
     books = fetchedBooks.map((book, index) => ({
       ...book,
       category: getCategory(book, index),
-      description: `Discover ${book.title}, written by ${book.author}.`,
+      description: `Discover ${book.title}, written by ${book.author || 'an unknown author'}.`,
     }))
 
-    selectedCategory = 'All Books'
+    // Keep the selected category when filtering; reset only for a new search.
     renderCategories()
-  } catch {
+  } catch (error) {
+    console.error('Unable to load books:', error)
+
     errorMessage =
       'Unable to load books. Check your internet connection and try again.'
   } finally {
@@ -251,18 +364,24 @@ async function loadBooks(title = 'fiction') {
   }
 }
 
+const basePath = import.meta.env.BASE_URL
+const homeUrl = `${basePath}index.html`
+const favoritesUrl = `${basePath}favorites.html`
+const aboutUrl = `${basePath}about.html`
+
 document.querySelector('#app').innerHTML = `
   <div class="min-h-screen bg-[#f3e8d5] text-[#34382b]">
     <header class="border-b border-[#ddd0b8] bg-[#fbf8f1]">
       <nav class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-5">
-        <a href="/" class="text-2xl font-bold">
+        <a href="${homeUrl}" class="text-2xl font-bold">
           Book<span class="text-[#69734d]">heart</span>
         </a>
+
         <div class="flex flex-wrap items-center gap-4 text-sm font-medium sm:gap-6">
-          <a href="/" class="text-[#69734d]">Home</a>
+          <a href="${homeUrl}" class="text-[#69734d]">Home</a>
           <a href="#categories" class="hover:text-[#69734d]">Categories</a>
-          <a href="/favorites.html" class="hover:text-[#69734d]">Favorites</a>
-          <a href="/about.html" class="hover:text-[#69734d]">About</a>
+          <a href="${favoritesUrl}" class="hover:text-[#69734d]">Favorites</a>
+          <a href="${aboutUrl}" class="hover:text-[#69734d]">About</a>
         </div>
       </nav>
     </header>
@@ -273,12 +392,15 @@ document.querySelector('#app').innerHTML = `
           <p class="mb-4 text-sm font-bold uppercase tracking-[0.2em] text-[#69734d]">
             YOUR NEXT CHAPTER STARTS HERE
           </p>
+
           <h1 class="max-w-xl text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
             Find a book that feels like <span class="text-[#69734d]">home.</span>
           </h1>
+
           <p class="mt-6 max-w-lg text-lg leading-8 text-[#626456]">
             Discover timeless classics, explore new stories, and build a reading list that is truly yours.
           </p>
+
           <a href="#discover" class="mt-8 inline-block rounded-full bg-[#69734d] px-7 py-3 font-semibold text-white hover:bg-[#34382b]">
             Explore Books
           </a>
@@ -289,9 +411,11 @@ document.querySelector('#app').innerHTML = `
             <div class="flex h-44 w-20 items-center justify-center rounded-l-md bg-[#69734d] p-3 text-center text-sm font-bold text-white shadow-lg sm:h-52 sm:w-24">
               Little<br />Women
             </div>
+
             <div class="flex h-52 w-20 items-center justify-center rounded-md bg-[#34382b] p-3 text-center text-sm font-bold text-white shadow-lg sm:h-60 sm:w-24">
               Pride &amp;<br />Prejudice
             </div>
+
             <div class="flex h-36 w-20 items-center justify-center rounded-r-md bg-[#a5a984] p-3 text-center text-sm font-bold text-[#34382b] shadow-lg sm:h-44 sm:w-24">
               The Secret<br />Garden
             </div>
@@ -301,37 +425,51 @@ document.querySelector('#app').innerHTML = `
 
       <section id="categories" class="bg-[#e9e4d6] px-5 py-12">
         <div class="mx-auto max-w-7xl">
-          <p class="text-sm font-bold uppercase tracking-[0.2em] text-[#69734d]">FIND YOUR GENRE</p>
+          <p class="text-sm font-bold uppercase tracking-[0.2em] text-[#69734d]">
+            FIND YOUR GENRE
+          </p>
+
           <h2 class="mt-3 text-3xl font-bold">Explore Categories</h2>
+
           <p class="mt-3 max-w-2xl leading-7 text-[#626456]">
             Choose a category to find books that match your interests.
           </p>
+
           <div id="category-buttons" class="mt-6 flex flex-wrap gap-3"></div>
         </div>
       </section>
 
       <section id="discover" class="bg-[#fbf8f1] px-5 py-16">
         <div class="mx-auto max-w-7xl">
-          <p class="text-sm font-bold uppercase tracking-[0.2em] text-[#69734d]">YOUR READING CORNER</p>
-          <h2 class="mt-3 text-3xl font-bold sm:text-4xl">Discover Your Next Read</h2>
+          <p class="text-sm font-bold uppercase tracking-[0.2em] text-[#69734d]">
+            YOUR READING CORNER
+          </p>
+
+          <h2 class="mt-3 text-3xl font-bold sm:text-4xl">
+            Discover Your Next Read
+          </h2>
+
           <p class="mt-4 max-w-2xl leading-7 text-[#626456]">
             Explore real book information from the Open Library catalogue.
           </p>
 
           <form id="search-form" class="mt-6 flex flex-col gap-3 sm:flex-row">
             <label for="book-search" class="sr-only">Search books by title</label>
+
             <input
               id="book-search"
               type="search"
               placeholder="Search books by title..."
               class="min-w-0 flex-1 rounded-full border border-[#ddd0b8] bg-white px-5 py-3 outline-none focus:ring-2 focus:ring-[#69734d]"
             />
+
             <button type="submit" class="rounded-full bg-[#69734d] px-7 py-3 font-semibold text-white hover:bg-[#34382b]">
               Search
             </button>
           </form>
 
           <p id="result-count" class="mt-5 text-sm font-semibold text-[#69734d]" aria-live="polite"></p>
+
           <div id="book-grid" class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"></div>
         </div>
       </section>
@@ -340,7 +478,7 @@ document.querySelector('#app').innerHTML = `
     <footer class="bg-[#34382b] px-5 py-8 text-center text-sm text-[#f3e8d5]">
       <p class="font-semibold">Bookheart — Every book opens a new world.</p>
       <p class="mt-2">Made for readers who love a good story.</p>
-      <a href="#" class="mt-3 inline-block underline">Back to top</a>
+      <a href="#top" class="mt-3 inline-block underline">Back to top</a>
     </footer>
   </div>
 `
@@ -354,6 +492,9 @@ document.querySelector('#search-form').addEventListener('submit', async (event) 
   const title = input.value.trim()
 
   searchTitle = title
+  selectedCategory = 'All Books'
+
+  renderCategories()
   await loadBooks(title || 'fiction')
 })
 
