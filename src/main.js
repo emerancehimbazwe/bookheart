@@ -57,7 +57,9 @@ function renderBookCards() {
       </div>
     `
     resultCount.textContent = ''
-    document.querySelector('#retry-button').addEventListener('click', loadBooks)
+    document.querySelector('#retry-button').addEventListener('click', () => {
+      loadBooks(searchTitle || 'fiction')
+    })
     return
   }
 
