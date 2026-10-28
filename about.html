@@ -1,0 +1,258 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn about Bookheart, a place for discovering and organizing books you love.">
+  <title>About Us | Bookheart</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3e8d5;
+      color: #34382b;
+      line-height: 1.7;
+    }
+
+    header {
+      background: #fbf8f1;
+      border-bottom: 1px solid #ddd0b8;
+      padding: 20px;
+    }
+
+    nav {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      color: #34382b;
+      font-size: 25px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    nav div {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    nav div a {
+      color: #69734d;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:focus-visible,
+    .button:focus-visible {
+      outline: 3px solid #7b4b2a;
+      outline-offset: 4px;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: auto;
+      padding: 55px 20px;
+    }
+
+    .hero {
+      padding: 45px 30px;
+      background: #fbf8f1;
+      border: 1px solid #ddd0b8;
+      border-radius: 20px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      color: #69734d;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 10px 0;
+      font-size: clamp(32px, 5vw, 48px);
+      line-height: 1.2;
+    }
+
+    h2 {
+      margin-top: 35px;
+      font-size: 27px;
+    }
+
+    p {
+      color: #626456;
+    }
+
+    .hero p {
+      max-width: 650px;
+      margin: 18px auto;
+    }
+
+    .button {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 12px 24px;
+      border-radius: 25px;
+      background: #69734d;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .button:hover {
+      background: #34382b;
+    }
+
+    .content-section {
+      margin-top: 30px;
+      padding: 28px;
+      background: #fbf8f1;
+      border: 1px solid #ddd0b8;
+      border-radius: 16px;
+    }
+
+    .values {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .value-card {
+      padding: 20px;
+      background: white;
+      border: 1px solid #ddd0b8;
+      border-radius: 12px;
+    }
+
+    .value-card h3 {
+      margin-top: 0;
+    }
+
+    footer {
+      margin-top: 20px;
+      padding: 25px 15px;
+      background: #34382b;
+      color: #f3e8d5;
+      text-align: center;
+    }
+
+    footer p {
+      color: #f3e8d5;
+      margin: 0;
+    }
+
+    @media (max-width: 480px) {
+      nav {
+        align-items: flex-start;
+      }
+
+      .hero {
+        padding: 30px 18px;
+      }
+
+      .content-section {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav aria-label="Main navigation">
+      <a class="brand" href="/">
+        Book<span style="color: #69734d;">heart</span>
+      </a>
+
+      <div>
+        <a href="/">Home</a>
+        <a href="/favorites.html">Favorites</a>
+        <a href="/about.html" aria-current="page">About</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="about-heading">
+      <p class="eyebrow">Welcome to Bookheart</p>
+      <h1 id="about-heading">Every book opens a new world.</h1>
+      <p>
+        Bookheart is a simple place for readers to discover books,
+        explore different categories, and keep track of the books
+        they love.
+      </p>
+      <a class="button" href="/">Explore Our Books</a>
+    </section>
+
+    <section class="content-section" aria-labelledby="mission-heading">
+      <h2 id="mission-heading">Our Mission</h2>
+      <p>
+        Our mission is to make book discovery and organization easier.
+        Bookheart brings a collection of reading selections together
+        in one place so readers can browse books and save their
+        favorites for later.
+      </p>
+    </section>
+
+    <section class="content-section" aria-labelledby="features-heading">
+      <h2 id="features-heading">What You Can Do</h2>
+
+      <div class="values">
+        <article class="value-card">
+          <h3>Discover Books</h3>
+          <p>
+            Browse a selection of books across different categories
+            and find your next reading choice.
+          </p>
+        </article>
+
+        <article class="value-card">
+          <h3>Save Favorites</h3>
+          <p>
+            Add books to your favorites and return to your personal
+            collection whenever you want.
+          </p>
+        </article>
+
+        <article class="value-card">
+          <h3>Enjoy Simple Reading Discovery</h3>
+          <p>
+            Use a clear, responsive interface designed to make
+            exploring your collection straightforward on different
+            screen sizes.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="content-section" aria-labelledby="values-heading">
+      <h2 id="values-heading">Why Bookheart?</h2>
+      <p>
+        We believe books can inspire curiosity, creativity, and
+        lifelong learning. Bookheart helps make the journey of
+        finding and keeping track of books simple and enjoyable.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Bookheart — Every book opens a new world.</p>
+  </footer>
+</body>
+</html>
