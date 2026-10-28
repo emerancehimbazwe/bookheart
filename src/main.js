@@ -16,6 +16,8 @@ const categories = [
   'Adventure',
   'Mystery',
   "Children's Classics",
+  'Fantasy',
+  'Books',
 ]
 
 const categoryColors = [
@@ -34,21 +36,35 @@ const sampleCoverISBNs = {
   'The Great Gatsby': '9780743273565',
   'Little Women': '9780147514011',
   'The Secret Garden': '9780064401883',
+  'Alice’s Adventures in Wonderland': '9780141321073',
+  'Treasure Island': '9781503290563',
+  'The Adventures of Sherlock Holmes': '9780140439076',
+  'Anne of Green Gables': '9780553213133',
+  Frankenstein: '9780141439471',
+  'The Call of the Wild': '9780141321059',
 }
 
 function getCategory(book, index) {
-  return categories[1 + (index % (categories.length - 1))]
+  if (book.category && categories.includes(book.category)) {
+    return book.category
+  }
+
+  return categories[1 + (index % (categories.length - 2))]
 }
 
 function getCoverUrl(book) {
+  if (book.title === 'Anne of Green Gables') {
+    return 'https://covers.openlibrary.org/b/isbn/9780553213133-L.jpg?default=false'
+  }
+
   if (book.coverId) {
-    return `https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg`
+    return `https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg?default=false`
   }
 
   const isbn = book.isbn || sampleCoverISBNs[book.title]
 
   if (isbn) {
-    return `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`
+    return `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`
   }
 
   return ''
@@ -129,10 +145,11 @@ function renderBookCards() {
             <div
               class="h-full w-full flex-col items-center justify-center p-4 text-center"
               style="display: ${cover ? 'none' : 'flex'}"
-              aria-label="Cover unavailable"
+              aria-label="Book cover placeholder"
             >
               <span class="text-4xl font-bold text-[#69734d]" aria-hidden="true">B</span>
               <span class="mt-2 text-sm font-semibold text-[#34382b]">Bookheart</span>
+              <span class="mt-1 text-xs text-[#626456]">${book.title}</span>
             </div>
           </div>
 
