@@ -47,49 +47,51 @@ const sampleBooks = [
 ]
 
 export async function fetchBooks(title = 'fiction') {
-  const query = title.trim().toLowerCase()
+  const query = title.trim()
 
   try {
     const response = await fetch(
-      `${API_URL}?title=${encodeURIComponent(title)}&limit=6`,
+      `${API_URL}?title=${encodeURIComponent(query || 'fiction')}&limit=12`,
       { signal: AbortSignal.timeout(5000) }
     )
 
     if (!response.ok) {
-      throw new Error('Failed to fetch books from Open Library.')
+      throw new Error(`Open Library returned status ${response.status}`)
     }
 
     const data = await response.json()
 
-    const apiBooks = data.docs.map((book) => ({
-      id: book.key,
-      title: book.title || 'Untitled',
-      author: book.author_name?.[0] || 'Unknown author',
-      year: book.first_publish_year || 'Year unknown',
-      coverId: book.cover_i || null,
-    }))
+    const apiBooks = (data.docs || [])
+      .filter((book) => book.title)
+      .map((book) => ({
+        id: book.key,
+        title: book.title,
+        author: book.author_name?.[0] || 'Unknown author',
+        year: book.first_publish_year || 'Year unknown',
+        coverId: book.cover_i || null,
+      }))
 
-    // Use real API results when available.
     if (apiBooks.length > 0) {
       return apiBooks
     }
 
-    // If the API returns no results, try matching sample books.
     return getSampleBooks(query)
   } catch (error) {
-    console.warn('Open Library unavailable. Using sample books.', error)
+    console.warn(
+      'Open Library could not be reached. Showing sample books instead.',
+      error
+    )
 
-    // Keep the homepage usable if the API request fails.
     return getSampleBooks(query)
   }
 }
 
 function getSampleBooks(query) {
-  if (!query || query === 'fiction') {
+  if (!query || query.toLowerCase() === 'fiction') {
     return sampleBooks
   }
 
   return sampleBooks.filter((book) =>
-    book.title.toLowerCase().includes(query)
+    book.title.toLowerCase().includes(query.toLowerCase())
   )
 }

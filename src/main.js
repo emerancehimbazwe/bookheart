@@ -27,8 +27,31 @@ const categoryColors = [
   'bg-[#dfe9e6]',
 ]
 
+const sampleCoverISBNs = {
+  'Harry Potter and the Philosopher’s Stone': '9780590353427',
+  'The Hobbit': '9780547928227',
+  'Pride and Prejudice': '9780141439518',
+  'The Great Gatsby': '9780743273565',
+  'Little Women': '9780147514011',
+  'The Secret Garden': '9780064401883',
+}
+
 function getCategory(book, index) {
   return categories[1 + (index % (categories.length - 1))]
+}
+
+function getCoverUrl(book) {
+  if (book.coverId) {
+    return `https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg`
+  }
+
+  const isbn = book.isbn || sampleCoverISBNs[book.title]
+
+  if (isbn) {
+    return `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`
+  }
+
+  return ''
 }
 
 function renderBookCards() {
@@ -57,6 +80,7 @@ function renderBookCards() {
       </div>
     `
     resultCount.textContent = ''
+
     document.querySelector('#retry-button').addEventListener('click', () => {
       loadBooks(searchTitle || 'fiction')
     })
@@ -65,7 +89,8 @@ function renderBookCards() {
 
   const filteredBooks = books.filter((book) => {
     const matchesCategory =
-      selectedCategory === 'All Books' || book.category === selectedCategory
+      selectedCategory === 'All Books' ||
+      book.category === selectedCategory
 
     const matchesSearch =
       book.title.toLowerCase().includes(searchTitle.toLowerCase())
@@ -85,18 +110,30 @@ function renderBookCards() {
         (favorite) => String(favorite.id) === String(book.id)
       )
 
-      const cover = book.coverId
-        ? `https://covers.openlibrary.org/b/id/${book.coverId}-M.jpg`
-        : ''
+      const cover = getCoverUrl(book)
 
       return `
         <article class="rounded-2xl border border-[#ddd0b8] bg-white p-6 transition hover:-translate-y-1 hover:shadow-lg">
           <div class="mb-4 flex h-44 items-center justify-center overflow-hidden rounded-xl ${categoryColors[books.indexOf(book) % categoryColors.length]}">
             ${
               cover
-                ? `<img src="${cover}" alt="Cover of ${book.title}" class="h-full w-full object-contain" loading="lazy">`
-                : '<span class="text-5xl font-bold text-[#69734d]" aria-hidden="true">Bookheart</span>'
+                ? `<img
+                    src="${cover}"
+                    alt="Cover of ${book.title}"
+                    class="h-full w-full object-contain"
+                    loading="lazy"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+                  >`
+                : ''
             }
+            <div
+              class="h-full w-full flex-col items-center justify-center p-4 text-center"
+              style="display: ${cover ? 'none' : 'flex'}"
+              aria-label="Cover unavailable"
+            >
+              <span class="text-4xl font-bold text-[#69734d]" aria-hidden="true">B</span>
+              <span class="mt-2 text-sm font-semibold text-[#34382b]">Bookheart</span>
+            </div>
           </div>
 
           <p class="text-sm font-semibold uppercase text-[#69734d]">${book.category}</p>
@@ -189,7 +226,8 @@ async function loadBooks(title = 'fiction') {
     selectedCategory = 'All Books'
     renderCategories()
   } catch {
-    errorMessage = 'Unable to load books. Check your internet connection and try again.'
+    errorMessage =
+      'Unable to load books. Check your internet connection and try again.'
   } finally {
     isLoading = false
     renderBookCards()
@@ -298,14 +336,8 @@ document.querySelector('#search-form').addEventListener('submit', async (event) 
   const input = document.querySelector('#book-search')
   const title = input.value.trim()
 
-  if (!title) {
-    searchTitle = ''
-    await loadBooks()
-    return
-  }
-
   searchTitle = title
-  await loadBooks(title)
+  await loadBooks(title || 'fiction')
 })
 
 loadBooks()
