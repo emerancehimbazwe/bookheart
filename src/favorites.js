@@ -1,4 +1,3 @@
-
 const STORAGE_KEY = "bookheart-favorites";
 
 export function getFavorites() {
@@ -13,7 +12,11 @@ export function getFavorites() {
 export function addFavorite(book) {
   const favorites = getFavorites();
 
-  if (!favorites.some(item => item.id === book.id)) {
+  const alreadyExists = favorites.some(
+    (item) => String(item.id) === String(book.id)
+  );
+
+  if (!alreadyExists) {
     favorites.push(book);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
   }
@@ -23,7 +26,7 @@ export function addFavorite(book) {
 
 export function removeFavorite(bookId) {
   const favorites = getFavorites().filter(
-    book => book.id !== bookId
+    (book) => String(book.id) !== String(bookId)
   );
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
