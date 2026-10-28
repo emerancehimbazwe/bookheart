@@ -1,0 +1,250 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="View and manage your favorite books on Bookheart.">
+  <title>My Favorite Books | Bookheart</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3e8d5;
+      color: #34382b;
+    }
+
+    header {
+      background: #fbf8f1;
+      border-bottom: 1px solid #ddd0b8;
+      padding: 20px;
+    }
+
+    nav {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      color: #34382b;
+      font-size: 25px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    nav div {
+      display: flex;
+      gap: 22px;
+    }
+
+    nav div a {
+      color: #69734d;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    main {
+      max-width: 1100px;
+      min-height: 70vh;
+      margin: auto;
+      padding: 45px 20px;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    .intro,
+    .author {
+      color: #626456;
+      line-height: 1.7;
+    }
+
+    .books {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 22px;
+      margin-top: 30px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #ddd0b8;
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .category {
+      color: #69734d;
+      font-size: 13px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .card h2 {
+      font-size: 21px;
+      line-height: 1.4;
+    }
+
+    .book-button {
+      width: 100%;
+      min-height: 46px;
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #5c3a21;
+      border-radius: 25px;
+      background: #7b4b2a;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .book-button:hover {
+      background: #5c3a21;
+    }
+
+    .empty {
+      margin-top: 25px;
+      padding: 25px;
+      border-radius: 12px;
+      background: #fbf8f1;
+      color: #626456;
+      line-height: 1.7;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 25px;
+      padding: 12px 22px;
+      border-radius: 25px;
+      background: #69734d;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    footer {
+      background: #34382b;
+      color: #f3e8d5;
+      text-align: center;
+      padding: 25px 15px;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 30px;
+      }
+
+      nav {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav>
+      <a class="brand" href="/">
+        Book<span style="color: #69734d;">heart</span>
+      </a>
+
+      <div>
+        <a href="/">Home</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <h1>My Favorite Books</h1>
+
+    <p class="intro">
+      Your personal collection of books you love. Add books from the
+      homepage and return here whenever you want to read them.
+    </p>
+
+    <p id="favorite-count" class="intro" aria-live="polite"></p>
+
+    <div id="favorite-books" class="books"></div>
+
+    <p id="empty-message" class="empty" hidden>
+      You have not added any favorites yet. Visit the homepage and click
+      Add to Favorites on a book you like.
+    </p>
+
+    <a class="back-link" href="/">Explore Books</a>
+  </main>
+
+  <footer>
+    <p>Bookheart — Every book opens a new world.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      getFavorites,
+      removeFavorite
+    } from './src/favorites.js';
+
+    const favoriteContainer = document.querySelector('#favorite-books');
+    const emptyMessage = document.querySelector('#empty-message');
+    const favoriteCount = document.querySelector('#favorite-count');
+
+    function renderFavorites() {
+      const favorites = getFavorites();
+
+      favoriteContainer.replaceChildren();
+
+      favorites.forEach((book) => {
+        const card = document.createElement('article');
+        card.className = 'card';
+
+        const category = document.createElement('p');
+        category.className = 'category';
+        category.textContent = book.category || 'Book';
+
+        const title = document.createElement('h2');
+        title.textContent = book.title;
+
+        const author = document.createElement('p');
+        author.className = 'author';
+        author.textContent = book.author
+          ? `By ${book.author}`
+          : 'Classic reading selection';
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'book-button';
+        button.textContent = 'Remove Favorite';
+
+        button.addEventListener('click', () => {
+          removeFavorite(book.id);
+          renderFavorites();
+        });
+
+        card.append(category, title, author, button);
+        favoriteContainer.appendChild(card);
+      });
+
+      emptyMessage.hidden = favorites.length > 0;
+
+      favoriteCount.textContent =
+        `${favorites.length} saved ${favorites.length === 1 ? 'book' : 'books'}`;
+    }
+
+    renderFavorites();
+  </script>
+</body>
+</html>
